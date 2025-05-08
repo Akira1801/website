@@ -334,14 +334,13 @@
             });
             
             function updateWebtoonLists() {
-              
                 function createWebtoonItem(title, type, imageUrl, id) {
                     // Use a default image if none is provided
                     const defaultImage = '/assets/default-manga.jpg';
                     const image = imageUrl || defaultImage;
                     
                     return `
-                        <li class="webtoon-item list-group-item" data-id="${id || Math.random()}">
+                        <li class="webtoon-item list-group-item" data-id="${id || Math.random()}" data-image-url="${imageUrl || ''}">
                             <img src="${image}" alt="${title}" class="webtoon-thumb">
                             <div class="webtoon-info">
                                 <div class="webtoon-title">${title}</div>
@@ -379,32 +378,50 @@
                     const list = document.getElementById(`${category}List`);
                     
                     savedLibrary[category].forEach((webtoon, index) => {
-                        // Try to fetch image from API if available
-                        fetch(`https://api.jikan.moe/v4/manga/${webtoon.id}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data && data.data) {
-                                    const imageUrl = data.data.images?.jpg?.image_url;
-                                    const type = data.data.type || 'Unknown Type';
-                                    
-                                    // Create webtoon item with image
-                                    const html = createWebtoonItem(webtoon.title, type, imageUrl, webtoon.id);
+                        // If we already have an image URL, use it directly
+                        if (webtoon.imageUrl) {
+                            const html = createWebtoonItem(webtoon.title, 'Manga', webtoon.imageUrl, webtoon.id);
+                            list.innerHTML += html;
+                            
+                            // Set animation delay
+                            setTimeout(() => {
+                                const items = list.querySelectorAll('.webtoon-item');
+                                items.forEach((item, i) => {
+                                    item.style.setProperty('--animation-order', i);
+                                });
+                            }, 100);
+                        } else {
+                            // Try to fetch image from API if available
+                            fetch(`https://api.jikan.moe/v4/manga/${webtoon.id}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data && data.data) {
+                                        const imageUrl = data.data.images?.jpg?.image_url;
+                                        const type = data.data.type || 'Unknown Type';
+                                        
+                                        // Create webtoon item with image
+                                        const html = createWebtoonItem(webtoon.title, type, imageUrl, webtoon.id);
+                                        list.innerHTML += html;
+                                        
+                                        // Update the stored data with the image URL
+                                        webtoon.imageUrl = imageUrl;
+                                        localStorage.setItem('webtoonLibrary', JSON.stringify(savedLibrary));
+                                        
+                                        // Set animation delay
+                                        setTimeout(() => {
+                                            const items = list.querySelectorAll('.webtoon-item');
+                                            items.forEach((item, i) => {
+                                                item.style.setProperty('--animation-order', i);
+                                            });
+                                        }, 100);
+                                    }
+                                })
+                                .catch(() => {
+                                    // If API fails, create item with default image
+                                    const html = createWebtoonItem(webtoon.title, 'Unknown Type', null, webtoon.id);
                                     list.innerHTML += html;
-                                    
-                                    // Set animation delay
-                                    setTimeout(() => {
-                                        const items = list.querySelectorAll('.webtoon-item');
-                                        items.forEach((item, i) => {
-                                            item.style.setProperty('--animation-order', i);
-                                        });
-                                    }, 100);
-                                }
-                            })
-                            .catch(() => {
-                                // If API fails, create item with default image
-                                const html = createWebtoonItem(webtoon.title, 'Unknown Type', null, webtoon.id);
-                                list.innerHTML += html;
-                            });
+                                });
+                        }
                     });
                     
                     // Show the list after loading

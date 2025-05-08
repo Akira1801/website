@@ -82,11 +82,12 @@ class WebtoonLibrary {
     createWebtoonCard(item) {
         const card = document.createElement('div');
         card.className = 'col-md-3 mb-4';
+        card.dataset.id = item.mal_id;
         
         const rating = item.score ? this.generateRatingStars(item.score) : 'No rating';
         
         card.innerHTML = `
-            <div class="card h-100">
+            <div class="card h-100" data-id="${item.mal_id}">
                 <img src="${item.images.jpg.image_url}" class="card-img-top" alt="${item.title}" loading="lazy">
                 <div class="card-body">
                     <h5 class="card-title">${item.title}</h5>
@@ -148,6 +149,7 @@ class WebtoonLibrary {
         const libraryItem = document.createElement('li');
         libraryItem.className = 'list-group-item d-flex justify-content-between align-items-center';
         libraryItem.dataset.id = id;
+        libraryItem.dataset.imageUrl = imageUrl || '';
         
         libraryItem.innerHTML = `
             <span>${title}</span>
