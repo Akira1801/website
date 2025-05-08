@@ -66,6 +66,42 @@
             background-color: #f5e6d8 !important;
             color: #5d4037 !important;
         }
+        
+        .page-header {
+            background-color: #e7d4c0;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        }
+        
+        .page-header h2 {
+            padding-top: 0 !important;
+            margin: 0;
+        }
+        
+        .page-header::before {
+            content: '';
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background-color: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            top: -30px;
+            left: -30px;
+        }
+        
+        .page-header::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-color: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            bottom: 20px;
+            right: 10%;
+        }
     </style>
 </head>
 <body>
@@ -104,9 +140,11 @@
       </div>
     </nav>
 
-    <div class="container mt-4">
-        <h2 class="text-center mb-4">Webtoon & Manga Library</h1>
-        
+    <div class="page-header">
+        <h2 class="text-center mb-0">Webtoon & Manga Library</h2>
+    </div>
+
+    <div class="container">
         <div class="search-container">
             <div class="row g-3">
                 <div class="col-md-6">
