@@ -333,15 +333,16 @@
                 });
             });
             
-            // Function to create webtoon items with thumbnails
             function updateWebtoonLists() {
               
-                
-                // Create HTML for webtoon items
-                function createWebtoonItem(title, type, image = defaultImage, id) {
+                function createWebtoonItem(title, type, imageUrl, id) {
+                    // Use a default image if none is provided
+                    const defaultImage = '/assets/default-manga.jpg';
+                    const image = imageUrl || defaultImage;
+                    
                     return `
                         <li class="webtoon-item list-group-item" data-id="${id || Math.random()}">
-                            <img src="${item.images.jpg.image_url}" alt="${title}" class="webtoon-thumb">
+                            <img src="${image}" alt="${title}" class="webtoon-thumb">
                             <div class="webtoon-info">
                                 <div class="webtoon-title">${title}</div>
                                 <div class="webtoon-type">${type}</div>
@@ -350,10 +351,56 @@
                     `;
                 }
                 
-        
+                // Load webtoons from localStorage
+                const savedLibrary = JSON.parse(localStorage.getItem('webtoonLibrary'));
+                if (!savedLibrary) return;
+                
+                // Clear existing lists
+                document.getElementById('readingList').innerHTML = '';
+                document.getElementById('completedList').innerHTML = '';
+                document.getElementById('droppedList').innerHTML = '';
+                
+                // Fetch and display webtoons for each category
+                ['reading', 'completed', 'dropped'].forEach(category => {
+                    const list = document.getElementById(`${category}List`);
+                    
+                    savedLibrary[category].forEach((webtoon, index) => {
+                        // Try to fetch image from API if available
+                        fetch(`https://api.jikan.moe/v4/manga/${webtoon.id}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data && data.data) {
+                                    const imageUrl = data.data.images?.jpg?.image_url;
+                                    const type = data.data.type || 'Unknown Type';
+                                    
+                                    // Create webtoon item with image
+                                    const html = createWebtoonItem(webtoon.title, type, imageUrl, webtoon.id);
+                                    list.innerHTML += html;
+                                    
+                                    // Set animation delay
+                                    setTimeout(() => {
+                                        const items = list.querySelectorAll('.webtoon-item');
+                                        items.forEach((item, i) => {
+                                            item.style.setProperty('--animation-order', i);
+                                        });
+                                    }, 100);
+                                }
+                            })
+                            .catch(() => {
+                                // If API fails, create item with default image
+                                const html = createWebtoonItem(webtoon.title, 'Unknown Type', null, webtoon.id);
+                                list.innerHTML += html;
+                            });
+                    });
+                    
+                    // Show the list after loading
+                    if (savedLibrary[category].length > 0) {
+                        list.classList.add('show');
+                        list.closest('.card').querySelector('.card-header').classList.add('active');
+                    }
+                });
             }
             
-            // Initialize the lists
             updateWebtoonLists();
         });
     </script>
