@@ -5,6 +5,8 @@ class FlashcardSystem {
         this.currentCardIndex = 0;
         this.editingCardId = null;
         this.currentTestAnswers = [];
+        this.isQuizMode = false;
+        this.originalFlashcards = [];
         this.init();
     }
 
@@ -186,6 +188,11 @@ class FlashcardSystem {
     }
 
     flipCard() {
+        if (this.isQuizMode) {
+            this.showNotification('Card flipping is disabled in Quiz Mode!', 'warning');
+            return;
+        }
+        
         const flashcard = document.querySelector('.flashcard');
         flashcard.classList.toggle('flipped');
     }
@@ -450,6 +457,57 @@ class FlashcardSystem {
     toggleTestDetails(testId) {
         const content = document.getElementById(testId);
         content.style.display = content.style.display === 'none' ? 'block' : 'none';
+    }
+
+    toggleQuizMode() {
+        if (!this.currentCategory || !this.currentCategory.flashcards.length) {
+            this.showNotification('Please select a category with flashcards first', 'warning');
+            return;
+        }
+
+        this.isQuizMode = !this.isQuizMode;
+        const quizModeBtn = document.getElementById('quizModeBtn');
+        
+        if (this.isQuizMode) {
+            // Enable quiz mode
+            quizModeBtn.innerHTML = '<i class="fas fa-book"></i> Study Mode';
+            quizModeBtn.classList.remove('btn-warning');
+            quizModeBtn.classList.add('btn-info');
+            
+            // Store original flashcards order
+            this.originalFlashcards = [...this.currentCategory.flashcards];
+            
+            // Randomize flashcards
+            this.currentCategory.flashcards = this.shuffleArray([...this.currentCategory.flashcards]);
+            
+            // Reset current card index
+            this.currentCardIndex = 0;
+            this.showCurrentCard();
+            
+            this.showNotification('Quiz Mode activated! Cards have been randomized and flipping is disabled.', 'warning');
+        } else {
+            // Disable quiz mode
+            quizModeBtn.innerHTML = '<i class="fas fa-random"></i> Quiz Mode';
+            quizModeBtn.classList.remove('btn-info');
+            quizModeBtn.classList.add('btn-warning');
+            
+            // Restore original flashcards order
+            this.currentCategory.flashcards = [...this.originalFlashcards];
+            
+            // Reset current card index
+            this.currentCardIndex = 0;
+            this.showCurrentCard();
+            
+            this.showNotification('Returned to Study Mode. Cards restored to original order.', 'success');
+        }
+    }
+
+    shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
     }
 }
 
