@@ -1,0 +1,13 @@
+.navbar {
+    background-color: #ffe5ec;
+    font-weight: bold;
+}
+.nav-link {
+    color: #000000;
+    transition: color 0.5s ease, transform 0.5s ease;
+}
+
+.navbar .nav-link:hover {
+    color: #6f42c1 !important; /* Purple on hover */
+    transform: scale(1.1);
+}

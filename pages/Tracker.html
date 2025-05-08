@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Period Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f4f2;
+            overflow-x: hidden;
+            color: #4e342e;
+        }
+        
+        .page-header {
+            background-color: #e7d4c0;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        }
+        
+        .page-header::before {
+            content: '';
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background-color: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            top: -30px;
+            left: -30px;
+        }
+        
+        .page-header::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-color: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            bottom: 20px;
+            right: 10%;
+        }
+        
+        h2 {
+            color: #5d4037;
+            font-weight: 700;
+        }
+        
+        .container {
+            max-width: 900px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            background-color: #fff;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .form-control {
+            border-radius: 8px;
+            padding: 0.7rem 1rem;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .form-control:focus {
+            border-color: #e7d4c0;
+            box-shadow: 0 0 0 0.25rem rgba(231, 212, 192, 0.25);
+        }
+        
+        .btn-danger {
+            background-color: #e57373;
+            border-color: #e57373;
+            border-radius: 8px;
+            padding: 0.6rem 1.5rem;
+            font-weight: 500;
+        }
+        
+        .btn-danger:hover {
+            background-color: #ef5350;
+            border-color: #ef5350;
+        }
+        
+        .tracker {
+            padding-top: 1rem;
+            padding-bottom: 3rem;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #5d4037;
+            margin-bottom: 0.5rem;
+        }
+        
+        strong {
+            color: #5d4037;
+        }
+        
+        .period-card {
+            cursor: pointer;
+        }
+        
+        .period-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .period-card-header h5 {
+            margin-bottom: 0;
+        }
+        
+        .period-details {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f0e4db;
+        }
+        
+        .period-card.active .period-details {
+            display: block;
+        }
+        
+        .toggle-icon {
+            transition: transform 0.3s;
+            font-size: 1.5rem;
+            font-weight: 300;
+        }
+        
+        .period-card.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+        
+        .period-summary {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .period-summary span {
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            background-color: #fbf3ee;
+        }
+    </style>
+    
+    <script>
+      document.addEventListener("DOMContentLoaded", loadSavedPeriods);
+  
+      function calculatePeriod() {
+          const startDateInput = document.getElementById("startDate").value;
+          if (!startDateInput) return;
+  
+          const startDate = new Date(startDateInput);
+          const endDate = new Date(startDate);
+          endDate.setDate(startDate.getDate() + 5); // Period lasts ~5 days
+  
+          const follicularStart = new Date(endDate);
+          follicularStart.setDate(endDate.getDate() + 1);
+  
+          const ovulationDate = new Date(startDate);
+          ovulationDate.setDate(startDate.getDate() + 14);
+  
+          const lutealStart = new Date(ovulationDate);
+          lutealStart.setDate(ovulationDate.getDate() + 1);
+  
+          const cycleEnd = new Date(startDate);
+          cycleEnd.setDate(startDate.getDate() + 28); // Average 28-day cycle
+  
+          const periodData = {
+              id: Date.now(), // Unique ID for each entry
+              startDate: startDate.toDateString(),
+              endDate: endDate.toDateString(),
+              follicularStart: follicularStart.toDateString(),
+              ovulationDate: ovulationDate.toDateString(),
+              lutealStart: lutealStart.toDateString(),
+              cycleEnd: cycleEnd.toDateString()
+          };
+  
+          saveToLocalStorage(periodData);
+          displayPeriod(periodData);
+          document.getElementById("startDate").value = "";
+      }
+  
+      function saveToLocalStorage(periodData) {
+          let storedPeriods = JSON.parse(localStorage.getItem("periods")) || [];
+          storedPeriods.unshift(periodData); // Add new entry at the beginning
+          localStorage.setItem("periods", JSON.stringify(storedPeriods));
+      }
+  
+      function loadSavedPeriods() {
+          const storedPeriods = JSON.parse(localStorage.getItem("periods")) || [];
+          storedPeriods.forEach(displayPeriod);
+      }
+  
+      function displayPeriod(periodData) {
+          const resultsContainer = document.getElementById("results");
+  
+          const resultCard = document.createElement("div");
+          resultCard.className = "card p-3 mt-3 shadow-sm period-card";
+          resultCard.setAttribute("data-id", periodData.id); // Store ID for deletion
+          
+          // Create the card header with period start date and toggle icon
+          const header = document.createElement("div");
+          header.className = "period-card-header";
+          header.innerHTML = `
+              <h5>Period: ${periodData.startDate}</h5>
+              <span class="toggle-icon">▼</span>
+          `;
+          
+          // Create the summary that's always visible
+          const summary = document.createElement("div");
+          summary.className = "period-summary mt-2";
+          summary.innerHTML = `
+              <span>🩸 ${periodData.startDate} - ${periodData.endDate}</span>
+              <span>💖 Ovulation: ${periodData.ovulationDate}</span>
+              <span>🔄 Next: ${periodData.cycleEnd}</span>
+          `;
+          
+          // Create the collapsible details section
+          const details = document.createElement("div");
+          details.className = "period-details";
+          details.innerHTML = `
+              <p>📅 <strong>Period Started:</strong> ${periodData.startDate}</p>
+              <p>🩸 <strong>Period Ends:</strong> ${periodData.endDate}</p>
+              <p>🌱 <strong>Follicular Phase:</strong> ${periodData.follicularStart} - ${periodData.ovulationDate}</p>
+              <p>💖 <strong>Ovulation Day:</strong> ${periodData.ovulationDate} (Most Fertile)</p>
+              <p>🔥 <strong>Luteal Phase:</strong> ${periodData.lutealStart} - ${periodData.cycleEnd}</p>
+              <p>🔄 <strong>Next Expected Period:</strong> ${periodData.cycleEnd}</p>
+              <button class="btn btn-danger btn-sm mt-2" onclick="event.stopPropagation(); deletePeriod(${periodData.id})">Delete</button>
+          `;
+          
+          // Add all elements to the card
+          resultCard.appendChild(header);
+          resultCard.appendChild(summary);
+          resultCard.appendChild(details);
+          
+          // Add click event to toggle details
+          resultCard.addEventListener("click", function() {
+              this.classList.toggle("active");
+          });
+  
+          resultsContainer.prepend(resultCard);
+      }
+  
+      function deletePeriod(id) {
+          let storedPeriods = JSON.parse(localStorage.getItem("periods")) || [];
+          storedPeriods = storedPeriods.filter(period => period.id !== id); // Remove by ID
+          localStorage.setItem("periods", JSON.stringify(storedPeriods));
+  
+          // Remove from UI
+          document.querySelector(`[data-id="${id}"]`).remove();
+      }
+  
+      function clearPeriods() {
+          localStorage.removeItem("periods");
+          document.getElementById("results").innerHTML = "";
+      }
+    </script>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+      <img src="/assets/yarn.svg" alt="yarn" width="30" height="30" class="me-2">
+      <a class="navbar-brand" href="#">Babi's Lounge</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+        <ul class="nav">
+            <li class="nav-item">
+              <a class="nav-link active" href="/index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/pages/Crochet.html">Crochet Library</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/pages/Tracker.html">Tracker</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/pages/Recipes.html">Recipe List</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/pages/Movies.html">Movie Playlist</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/pages/Music.html">Flash Cards</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/pages/Webtoon.html">Webtoon Playlist</a>
+            </li>
+          </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h2 class="text-center mb-0">Period Tracker</h2>
+  </div>
+
+  <div class="container tracker">
+    <div class="card p-4 shadow-sm">
+        <h4 class="mb-3 text-center">Track New Period</h4>
+        <label for="startDate" class="form-label">Select First Day of Period:</label>
+        <input type="date" id="startDate" class="form-control mb-3">
+        <button onclick="calculatePeriod()" class="btn btn-danger w-100">Track My Cycle</button>
+    </div>
+
+    <h4 class="mt-4 mb-3">Period History</h4>
+    <div id="results"></div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

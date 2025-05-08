@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Playlist</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script defer>
+        const API_URL = "https://www.googleapis.com/youtube/v3/search";
+        const API_KEY = "AIzaSyAqKjcvhueVNa7Tdc0UeX3PRLUC6tZUkz4"; // Replace with your actual API key
+        
+        document.addEventListener("DOMContentLoaded", loadPlaylists);
+        
+        function searchMusic() {
+            let query = document.getElementById("searchInput").value;
+            fetch(`${API_URL}?part=snippet&type=video&q=${query}&key=${API_KEY}&maxResults=10`)
+                .then(response => response.json())
+                .then(data => displayResults(data.items))
+                .catch(error => console.error("Error fetching data:", error));
+        }
+        
+        function displayResults(results) {
+            let output = "<ul class='list-group'>";
+            results.forEach(video => {
+                let title = video.snippet.title;
+                let videoId = video.id.videoId;
+                let cover = video.snippet.thumbnails.default.url;
+                let channel = video.snippet.channelTitle;
+                output += `
+                    <li class='list-group-item d-flex justify-content-between align-items-center'>
+                        <img src="${cover}" alt="Cover" width="50" class="me-2">
+                        <span>${title} - ${channel}</span>
+                        <select class='form-select form-select-sm w-auto d-inline' id='playlistSelect-${videoId}'>
+                            ${getPlaylistOptions()}
+                        </select>
+                        <button class='btn btn-sm btn-primary' onclick="addToPlaylist('${videoId}', '${title}', '${channel}', '${cover}')">Add</button>
+                    </li>`;
+            });
+            output += "</ul>";
+            document.getElementById("searchResults").innerHTML = output;
+        }
+        
+        function getPlaylistOptions() {
+            let playlists = JSON.parse(localStorage.getItem("playlists")) || {};
+            let options = "";
+            for (let name in playlists) {
+                options += `<option value='${name}'>${name}</option>`;
+            }
+            return options;
+        }
+        
+        function createPlaylist() {
+            let name = document.getElementById("playlistName").value;
+            if (!name) return alert("Enter a playlist name");
+            let playlists = JSON.parse(localStorage.getItem("playlists")) || {};
+            playlists[name] = [];
+            localStorage.setItem("playlists", JSON.stringify(playlists));
+            document.getElementById("playlistName").value = "";
+            loadPlaylists();
+        }
+        
+        function loadPlaylists() {
+            let playlists = JSON.parse(localStorage.getItem("playlists")) || {};
+            let output = "";
+            for (let name in playlists) {
+                output += `<div class='mb-3'>
+                    <h4>${name} <button class='btn btn-sm btn-danger' onclick="deletePlaylist('${name}')">Delete</button></h4>
+                    <ul class='list-group' id='playlist-${name}'>`;
+                playlists[name].forEach((song, index) => {
+                    output += `
+                        <li class='list-group-item d-flex justify-content-between align-items-center'>
+                            <img src="${song.cover}" alt="Cover" width="50" class="me-2">
+                            <span contenteditable='true' onblur="editSong('${name}', ${index}, this.innerText)">${song.title} - ${song.artist}</span>
+                            <button class='btn btn-sm btn-danger' onclick="removeFromPlaylist('${name}', ${index})">Remove</button>
+                        </li>`;
+                });
+                output += "</ul></div>";
+            }
+            document.getElementById("playlists").innerHTML = output;
+        }
+        
+        function addToPlaylist(videoId, title, artist, cover) {
+            let playlistName = document.getElementById(`playlistSelect-${videoId}`).value;
+            let playlists = JSON.parse(localStorage.getItem("playlists")) || {};
+            playlists[playlistName].push({ title, artist, cover });
+            localStorage.setItem("playlists", JSON.stringify(playlists));
+            loadPlaylists();
+        }
+        
+        function removeFromPlaylist(playlist, index) {
+            let playlists = JSON.parse(localStorage.getItem("playlists"));
+            playlists[playlist].splice(index, 1);
+            localStorage.setItem("playlists", JSON.stringify(playlists));
+            loadPlaylists();
+        }
+        
+        function editSong(playlist, index, newTitle) {
+            let playlists = JSON.parse(localStorage.getItem("playlists"));
+            let [title, artist] = newTitle.split(" - ");
+            playlists[playlist][index].title = title;
+            playlists[playlist][index].artist = artist || "Unknown Artist";
+            localStorage.setItem("playlists", JSON.stringify(playlists));
+        }
+        
+        function deletePlaylist(name) {
+            let playlists = JSON.parse(localStorage.getItem("playlists"));
+            delete playlists[name];
+            localStorage.setItem("playlists", JSON.stringify(playlists));
+            loadPlaylists();
+        }
+    </script>
+
+</head>
+
+<body class="container mt-4">
+    <h1 class="text-center">YouTube Music Playlist</h1>
+    
+    <!-- Search Bar -->
+    <div class="input-group mb-3">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search for music...">
+        <button class="btn btn-primary" onclick="searchMusic()">Search</button>
+    </div>
+    
+    <!-- Search Results -->
+    <div id="searchResults" class="mb-4"></div>
+    
+    <!-- Playlist Management -->
+    <h2>Create a Playlist</h2>
+    <div class="input-group mb-3">
+        <input type="text" id="playlistName" class="form-control" placeholder="Playlist name">
+        <button class="btn btn-success" onclick="createPlaylist()">Create</button>
+    </div>
+    
+    <h2>Your Playlists</h2>
+    <div id="playlists"></div>
+</body>
+</html>

@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f4f2;
+            overflow-x: hidden;
+            color: #4e342e;
+        }
+        
+        .page-header {
+            background-color: #e7d4c0;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        }
+        
+        .page-header::before {
+            content: '';
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background-color: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            top: -30px;
+            left: -30px;
+        }
+        
+        .page-header::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-color: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            bottom: 20px;
+            right: 10%;
+        }
+        
+        h1, h2, h3, h4 {
+            color: #5d4037;
+            font-weight: 700;
+        }
+        
+        .container {
+            max-width: 1100px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            background-color: #fff;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .card-title {
+            color: #5d4037;
+            font-weight: 600;
+        }
+        
+        .form-control {
+            border-radius: 8px;
+            padding: 0.5rem 0.8rem;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 0.7rem;
+            font-size: 0.95rem;
+        }
+        
+        .form-control:focus {
+            border-color: #e7d4c0;
+            box-shadow: 0 0 0 0.25rem rgba(231, 212, 192, 0.25);
+        }
+        
+        .btn {
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+        
+        .btn-primary {
+            background-color: #81c784;
+            border-color: #81c784;
+        }
+        
+        .btn-primary:hover {
+            background-color: #66bb6a;
+            border-color: #66bb6a;
+        }
+        
+        .btn-secondary {
+            background-color: #b0bec5;
+            border-color: #b0bec5;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #90a4ae;
+            border-color: #90a4ae;
+        }
+        
+        .btn-danger {
+            background-color: #e57373;
+            border-color: #e57373;
+        }
+        
+        .btn-danger:hover {
+            background-color: #ef5350;
+            border-color: #ef5350;
+        }
+        
+        .btn-warning {
+            background-color: #ffb74d;
+            border-color: #ffb74d;
+            color: #fff;
+        }
+        
+        .btn-warning:hover {
+            background-color: #ffa726;
+            border-color: #ffa726;
+            color: #fff;
+        }
+        
+        .list-group-item {
+            border-color: #f0e4db;
+            padding: 0.7rem 1rem;
+            color: #5d4037;
+            font-size: 0.9rem;
+        }
+        
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        #recipeContainer .card {
+            height: 100%;
+        }
+        
+        .recipe-form-card {
+            margin-bottom: 2rem;
+        }
+        
+        .form-section h4 {
+            color: #5d4037;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        #ingredientList {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+            color: #6d4c41;
+        }
+        
+        .recipe-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .recipe-tag {
+            background-color: #e7d4c0;
+            color: #5d4037;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .recipe-tag:hover {
+            background-color: #d7b9a0;
+        }
+        
+        .recipe-tag.active {
+            background-color: #81c784;
+            color: white;
+        }
+        
+        .filter-section {
+            background-color: white;
+            border-radius: 16px;
+            padding: 1.2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .ingredients-compact {
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .ingredients-compact li {
+            margin-bottom: 0.2rem;
+        }
+        
+        .ingredient-badge {
+            display: inline-block;
+            padding: 0.3rem 0.7rem;
+            margin: 0.2rem;
+            background-color: #f5e6d8;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .compact-form-group {
+            margin-bottom: 0.7rem;
+        }
+        
+        .two-column-form {
+            column-count: 2;
+            column-gap: 1.5rem;
+        }
+        
+        .main-ingredient-select {
+            margin-bottom: 0.7rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+          <img src="/assets/yarn.svg" alt="yarn" width="30" height="30" class="me-2">
+          <a class="navbar-brand" href="#">Babi's Lounge</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+            <ul class="nav">
+                <li class="nav-item">
+                  <a class="nav-link active" href="/index.html">Home</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/pages/Crochet.html">Crochet Library</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/pages/Tracker.html">Tracker</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/pages/Recipes.html">Recipe List</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/pages/Movies.html">Movie Playlist</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/pages/Music.html">Flash Cards</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/pages/Webtoon.html">Webtoon Playlist</a>
+                </li>
+              </ul>
+          </div>
+        </div>
+    </nav>
+    
+    <div class="page-header">
+        <h1 class="text-center mb-0">Recipe Manager</h1>
+    </div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5">
+                <!-- Add Recipe Form -->
+                <div class="card p-3 shadow-sm recipe-form-card">
+                    <div class="form-section">
+                        <h4 class="text-center mb-3">Add New Recipe</h4>
+                        
+                        <div class="compact-form-group">
+                            <label for="recipeTitle" class="form-label">Recipe Title</label>
+                            <input type="text" id="recipeTitle" class="form-control" placeholder="Enter recipe name">
+                        </div>
+                        
+                        <div class="compact-form-group">
+                            <label for="recipeDescription" class="form-label">Description</label>
+                            <textarea id="recipeDescription" class="form-control" placeholder="Brief description" rows="2"></textarea>
+                        </div>
+                        
+                        <div class="compact-form-group">
+                            <label for="mainIngredient" class="form-label">Main Ingredient</label>
+                            <select id="mainIngredient" class="form-control main-ingredient-select">
+                                <option value="">Select main ingredient</option>
+                                <option value="Beef">Beef</option>
+                                <option value="Chicken">Chicken</option>
+                                <option value="Pork">Pork</option>
+                                <option value="Fish">Fish</option>
+                                <option value="Seafood">Seafood</option>
+                                <option value="Vegetables">Vegetables</option>
+                                <option value="Pasta">Pasta</option>
+                                <option value="Rice">Rice</option>
+                                <option value="Beans">Beans</option>
+                                <option value="Cheese">Cheese</option>
+                                <option value="Eggs">Eggs</option>
+                                <option value="Fruit">Fruit</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="compact-form-group">
+                            <label for="recipeImage" class="form-label">Recipe Image</label>
+                            <input type="file" id="recipeImage" class="form-control">
+                        </div>
+                        
+                        <div class="row mt-2 mb-2">
+                            <div class="col-8">
+                                <input type="text" id="ingredientInput" class="form-control" placeholder="Enter ingredient">
+                            </div>
+                            <div class="col-4">
+                                <button class="btn btn-secondary w-100" onclick="addIngredient()">Add</button>
+                            </div>
+                        </div>
+                        
+                        <div class="card mt-2 mb-3">
+                            <div class="card-header bg-light py-2">Ingredients List</div>
+                            <ul id="ingredientList" class="list-group list-group-flush"></ul>
+                        </div>
+                        
+                        <button class="btn btn-primary w-100" onclick="addRecipe()">Save Recipe</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-7">
+                <!-- Recipe Library -->
+                <div class="filter-section mb-3">
+                    <h4 class="mb-3">Recipe Library</h4>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <label class="form-label mb-0">Filter by main ingredient:</label>
+                        <div class="d-flex">
+                            <select id="ingredientFilter" class="form-control me-2" style="width: auto">
+                                <option value="All">All Ingredients</option>
+                                <!-- This will be populated dynamically -->
+                            </select>
+                            <button class="btn btn-primary btn-sm" onclick="resetFilter()">Reset</button>
+                        </div>
+                    </div>
+                    <div id="ingredientTags" class="recipe-tags">
+                        <!-- Ingredient tags will be added here dynamically -->
+                    </div>
+                </div>
+                
+                <h3 class="mb-3">My Recipes</h3>
+                <div id="recipeContainer" class="row g-3"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let recipes = JSON.parse(localStorage.getItem("recipes")) || [];
+        let mainIngredients = new Set();
+        
+        function updateIngredientFilter() {
+            // Extract all unique main ingredients
+            mainIngredients = new Set(['All']);
+            recipes.forEach(recipe => {
+                if (recipe.mainIngredient && recipe.mainIngredient !== "")
+                    mainIngredients.add(recipe.mainIngredient);
+            });
+            
+            // Update select options
+            const filter = document.getElementById("ingredientFilter");
+            filter.innerHTML = "";
+            mainIngredients.forEach(ingredient => {
+                const option = document.createElement("option");
+                option.value = ingredient;
+                option.textContent = ingredient;
+                filter.appendChild(option);
+            });
+            
+            // Update tags
+            const tagsContainer = document.getElementById("ingredientTags");
+            tagsContainer.innerHTML = "";
+            mainIngredients.forEach(ingredient => {
+                if (ingredient === 'All') return;
+                const tag = document.createElement("span");
+                tag.className = "recipe-tag";
+                tag.textContent = ingredient;
+                tag.onclick = function() {
+                    document.getElementById("ingredientFilter").value = ingredient;
+                    filterRecipes(ingredient);
+                    // Update active state
+                    document.querySelectorAll('.recipe-tag').forEach(t => t.classList.remove('active'));
+                    tag.classList.add('active');
+                };
+                tagsContainer.appendChild(tag);
+            });
+        }
+        
+        function filterRecipes(ingredient) {
+            const container = document.getElementById("recipeContainer");
+            container.innerHTML = "";
+            
+            const filteredRecipes = ingredient === "All" 
+                ? recipes 
+                : recipes.filter(recipe => recipe.mainIngredient === ingredient);
+                
+            if (filteredRecipes.length === 0) {
+                container.innerHTML = `<div class="col-12 text-center py-4">
+                    <p>No recipes found with ${ingredient} as main ingredient.</p>
+                </div>`;
+                return;
+            }
+            
+            displayRecipeCards(filteredRecipes);
+        }
+
+        function resetFilter() {
+            document.getElementById("ingredientFilter").value = "All";
+            document.querySelectorAll('.recipe-tag').forEach(t => t.classList.remove('active'));
+            displayRecipes();
+        }
+
+        function addIngredient() {
+            const ingredientInput = document.getElementById("ingredientInput");
+            if (ingredientInput.value.trim() === "") return;
+            const li = document.createElement("li");
+            li.className = "list-group-item py-2";
+            li.textContent = ingredientInput.value;
+            document.getElementById("ingredientList").appendChild(li);
+            ingredientInput.value = "";
+        }
+
+        function addRecipe() {
+            const title = document.getElementById("recipeTitle").value;
+            const description = document.getElementById("recipeDescription").value;
+            const mainIngredient = document.getElementById("mainIngredient").value;
+            const imageFile = document.getElementById("recipeImage").files[0];
+            const ingredients = Array.from(document.getElementById("ingredientList").children).map(li => li.textContent);
+            
+            if (!title || !description || !imageFile || ingredients.length === 0) {
+                return alert("Please fill all fields");
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const imageUrl = event.target.result;
+                const recipe = { 
+                    id: Date.now(),
+                    title,
+                    description,
+                    mainIngredient,
+                    imageUrl,
+                    ingredients 
+                };
+                
+                recipes.push(recipe);
+                localStorage.setItem("recipes", JSON.stringify(recipes));
+                
+                // Update filters and display recipes
+                updateIngredientFilter();
+                displayRecipes();
+                
+                // Clear form
+                document.getElementById("recipeTitle").value = "";
+                document.getElementById("recipeDescription").value = "";
+                document.getElementById("mainIngredient").value = "";
+                document.getElementById("recipeImage").value = "";
+                document.getElementById("ingredientList").innerHTML = "";
+            };
+            reader.readAsDataURL(imageFile);
+        }
+
+        function displayRecipes() {
+            updateIngredientFilter();
+            document.getElementById("ingredientFilter").value = "All";
+            document.querySelectorAll('.recipe-tag').forEach(t => t.classList.remove('active'));
+            displayRecipeCards(recipes);
+        }
+        
+        function displayRecipeCards(recipesToShow) {
+            const container = document.getElementById("recipeContainer");
+            container.innerHTML = "";
+            
+            recipesToShow.forEach((recipe, index) => {
+                // Find the original index in the full recipes array
+                const originalIndex = recipes.findIndex(r => r.id === recipe.id);
+                
+                container.innerHTML += `
+                    <div class="col-md-6 col-lg-6">
+                        <div class="card h-100">
+                            <img src="${recipe.imageUrl}" class="card-img-top" alt="${recipe.title}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h5 class="card-title mb-0">${recipe.title}</h5>
+                                    ${recipe.mainIngredient ? `<span class="ingredient-badge">${recipe.mainIngredient}</span>` : ''}
+                                </div>
+                                <p class="card-text">${recipe.description}</p>
+                                
+                                <h6 class="mb-2">Ingredients:</h6>
+                                <ul class="ingredients-compact">
+                                    ${recipe.ingredients.slice(0, 3).map(ing => `<li>${ing}</li>`).join('')}
+                                    ${recipe.ingredients.length > 3 ? `<li>+${recipe.ingredients.length - 3} more</li>` : ''}
+                                </ul>
+                                
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-warning btn-sm" onclick="editRecipe(${originalIndex})">Edit</button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteRecipe(${originalIndex})">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function editRecipe(index) {
+            const recipe = recipes[index];
+            document.getElementById("recipeTitle").value = recipe.title;
+            document.getElementById("recipeDescription").value = recipe.description;
+            document.getElementById("mainIngredient").value = recipe.mainIngredient || "";
+            document.getElementById("ingredientList").innerHTML = recipe.ingredients.map(ing => `<li class='list-group-item py-2'>${ing}</li>`).join('');
+            recipes.splice(index, 1);
+            localStorage.setItem("recipes", JSON.stringify(recipes));
+            updateIngredientFilter();
+            displayRecipes();
+        }
+
+        function deleteRecipe(index) {
+            recipes.splice(index, 1);
+            localStorage.setItem("recipes", JSON.stringify(recipes));
+            updateIngredientFilter();
+            displayRecipes();
+        }
+        
+        // Initialize filter selection
+        document.getElementById("ingredientFilter").addEventListener("change", function() {
+            const selectedIngredient = this.value;
+            filterRecipes(selectedIngredient);
+            
+            // Update active tag
+            document.querySelectorAll('.recipe-tag').forEach(tag => {
+                if (tag.textContent === selectedIngredient) {
+                    tag.classList.add('active');
+                } else {
+                    tag.classList.remove('active');
+                }
+            });
+        });
+
+        // Initialize page
+        document.addEventListener("DOMContentLoaded", function() {
+            displayRecipes();
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
