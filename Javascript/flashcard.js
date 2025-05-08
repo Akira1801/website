@@ -8,6 +8,18 @@ class FlashcardSystem {
         this.isQuizMode = false;
         this.originalFlashcards = [];
         this.init();
+        
+        // Add CSS for smooth transitions
+        const style = document.createElement('style');
+        style.textContent = `
+            .flashcard {
+                transition: height 0.3s ease, font-size 0.3s ease;
+            }
+            .answer-input {
+                transition: font-size 0.3s ease, padding 0.3s ease;
+            }
+        `;
+        document.head.appendChild(style);
     }
 
     init() {
