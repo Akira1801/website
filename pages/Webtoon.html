@@ -187,6 +187,30 @@
             max-height: 1000px;
         }
         
+        /* Modal styling */
+        .modal-content {
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .modal-header {
+            background-color: #e7d4c0;
+            border-bottom: none;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        #modalWebtoonTitle {
+            font-weight: 600;
+            color: #5d4037;
+            font-size: 1.1rem;
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -304,10 +328,65 @@
         </div>
     </div>
 
+    <!-- Category Change Modal -->
+    <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="categoryModalLabel">Manage Webtoon</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h6 id="modalWebtoonTitle" class="mb-4 text-center"></h6>
+                    <div class="d-grid gap-3">
+                        <button class="btn btn-success" onclick="moveWebtoonToCategory('reading')" data-bs-dismiss="modal">
+                            <i class="fas fa-book-open me-2"></i> Move to Reading
+                        </button>
+                        <button class="btn btn-primary" onclick="moveWebtoonToCategory('completed')" data-bs-dismiss="modal">
+                            <i class="fas fa-check-circle me-2"></i> Move to Completed
+                        </button>
+                        <button class="btn btn-warning" onclick="moveWebtoonToCategory('dropped')" data-bs-dismiss="modal">
+                            <i class="fas fa-pause-circle me-2"></i> Move to Dropped
+                        </button>
+                        <hr>
+                        <button class="btn btn-danger" onclick="removeWebtoon()" data-bs-dismiss="modal">
+                            <i class="fas fa-trash-alt me-2"></i> Remove from Library
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/Javascript/webtoon.js"></script>
     
     <script>
+        // Current webtoon being managed
+        let currentWebtoonId = '';
+        let currentWebtoonTitle = '';
+        
+        // Set the current webtoon for the modal
+        function setCurrentWebtoon(id, title) {
+            currentWebtoonId = id;
+            currentWebtoonTitle = title;
+            document.getElementById('modalWebtoonTitle').textContent = title;
+        }
+        
+        // Move webtoon to a different category
+        function moveWebtoonToCategory(category) {
+            if (currentWebtoonId && currentWebtoonTitle) {
+                library.moveToCategory(null, currentWebtoonId, currentWebtoonTitle, category);
+            }
+        }
+        
+        // Remove webtoon from library
+        function removeWebtoon() {
+            if (currentWebtoonId) {
+                library.removeFromLibrary(currentWebtoonId);
+            }
+        }
+        
         // Make card headers clickable to expand/collapse
         document.addEventListener('DOMContentLoaded', function() {
             // Get all card headers
@@ -335,8 +414,8 @@
             
             function updateWebtoonLists() {
                 function createWebtoonItem(title, type, imageUrl, id) {
-                    // Use a default image if none is provided
-                    const defaultImage = '/assets/default-manga.jpg';
+                    // Use a data URI placeholder if no image is provided
+                    const defaultImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTUwIiBmaWxsPSIjZTdkNGMwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI2U3ZDRjMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNGUzNDJlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
                     const image = imageUrl || defaultImage;
                     
                     return `
@@ -346,18 +425,12 @@
                                 <div class="webtoon-title">${title}</div>
                                 <div class="d-flex justify-content-between align-items-center mt-1">
                                     <span class="webtoon-type">${type}</span>
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            Move
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="#" onclick="library.moveToCategory(this, '${id}', '${title.replace(/'/g, "\\'")}', 'reading')">Reading</a></li>
-                                            <li><a class="dropdown-item" href="#" onclick="library.moveToCategory(this, '${id}', '${title.replace(/'/g, "\\'")}', 'completed')">Completed</a></li>
-                                            <li><a class="dropdown-item" href="#" onclick="library.moveToCategory(this, '${id}', '${title.replace(/'/g, "\\'")}', 'dropped')">Dropped</a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item text-danger" href="#" onclick="library.removeFromLibrary('${id}')">Remove</a></li>
-                                        </ul>
-                                    </div>
+                                    <button class="btn btn-sm btn-outline-secondary" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#categoryModal" 
+                                            onclick="setCurrentWebtoon('${id}', '${title.replace(/'/g, "\\'")}')">
+                                        Manage
+                                    </button>
                                 </div>
                             </div>
                         </li>

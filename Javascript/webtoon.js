@@ -179,7 +179,7 @@ class WebtoonLibrary {
 
     moveToCategory(element, id, title, category) {
         // If called from select element, get the value
-        if (element.tagName === 'SELECT') {
+        if (element && element.tagName === 'SELECT') {
             category = element.value;
         }
         
