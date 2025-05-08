@@ -229,6 +229,18 @@ class FlashcardSystem {
         this.updateScoreDisplay();
         this.showAnswerFeedback(isCorrect, correctAnswer);
         input.value = '';
+        
+        // In quiz mode, auto-advance to next card after a brief delay
+        if (this.isQuizMode) {
+            setTimeout(() => {
+                // Check if we've gone through all cards
+                if (this.currentTestAnswers.length >= this.currentCategory.flashcards.length) {
+                    this.finishTest();
+                } else {
+                    this.nextCard();
+                }
+            }, 1500); // 1.5 second delay to see feedback
+        }
     }
 
     showAnswerFeedback(isCorrect, correctAnswer) {
@@ -250,7 +262,19 @@ class FlashcardSystem {
         if (!this.currentCategory || !this.currentCategory.flashcards.length) return;
         
         this.currentCardIndex = (this.currentCardIndex + 1) % this.currentCategory.flashcards.length;
+        
+        // In quiz mode, if we've looped back to the beginning and have answers, finish the quiz
+        if (this.isQuizMode && this.currentCardIndex === 0 && this.currentTestAnswers.length > 0) {
+            this.finishTest();
+            return;
+        }
+        
         this.showCurrentCard();
+        
+        // In quiz mode, focus on the answer input after changing cards
+        if (this.isQuizMode) {
+            document.getElementById('answerInput').focus();
+        }
     }
 
     previousCard() {
@@ -479,6 +503,9 @@ class FlashcardSystem {
 
         this.isQuizMode = !this.isQuizMode;
         const quizModeBtn = document.getElementById('quizModeBtn');
+        const flashcard = document.querySelector('.flashcard');
+        const answerInput = document.getElementById('answerInput');
+        const flashcardsManagement = document.getElementById('flashcardsManagement');
         
         if (this.isQuizMode) {
             // Enable quiz mode
@@ -492,11 +519,25 @@ class FlashcardSystem {
             // Randomize flashcards
             this.currentCategory.flashcards = this.shuffleArray([...this.currentCategory.flashcards]);
             
-            // Reset current card index
+            // Reset current card index and test answers
             this.currentCardIndex = 0;
-            this.showCurrentCard();
+            this.currentTestAnswers = [];
+            this.updateScoreDisplay();
             
+            // Make UI bigger for focus
+            flashcard.style.height = '300px';
+            flashcard.style.fontSize = '1.3rem';
+            answerInput.style.fontSize = '1.2rem';
+            answerInput.style.padding = '0.8rem 1rem';
+            
+            // Hide flashcards management section for focus
+            flashcardsManagement.style.display = 'none';
+            
+            this.showCurrentCard();
             this.showNotification('Quiz Mode activated! Cards have been randomized and flipping is disabled.', 'warning');
+            
+            // Focus on answer input
+            answerInput.focus();
         } else {
             // Disable quiz mode
             quizModeBtn.innerHTML = '<i class="fas fa-random"></i> Quiz Mode';
@@ -508,8 +549,17 @@ class FlashcardSystem {
             
             // Reset current card index
             this.currentCardIndex = 0;
-            this.showCurrentCard();
             
+            // Restore UI to normal size
+            flashcard.style.height = '200px';
+            flashcard.style.fontSize = '';
+            answerInput.style.fontSize = '';
+            answerInput.style.padding = '';
+            
+            // Show flashcards management section again
+            flashcardsManagement.style.display = 'block';
+            
+            this.showCurrentCard();
             this.showNotification('Returned to Study Mode. Cards restored to original order.', 'success');
         }
     }
