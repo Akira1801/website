@@ -341,7 +341,7 @@
                 function createWebtoonItem(title, type, image = defaultImage, id) {
                     return `
                         <li class="webtoon-item list-group-item" data-id="${id || Math.random()}">
-                            <img src="${image}" alt="${title}" class="webtoon-thumb">
+                            <img src="${item.images.jpg.image_url}" alt="${title}" class="webtoon-thumb">
                             <div class="webtoon-info">
                                 <div class="webtoon-title">${title}</div>
                                 <div class="webtoon-type">${type}</div>
