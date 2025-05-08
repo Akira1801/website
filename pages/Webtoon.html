@@ -102,6 +102,96 @@
             bottom: 20px;
             right: 10%;
         }
+        
+        /* Tab styling for library section */
+        .library-tabs {
+            border-bottom: 1px solid #e7d4c0;
+            margin-bottom: 2rem;
+        }
+        
+        .library-tabs .nav-link {
+            color: #5d4037;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0;
+            position: relative;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .library-tabs .nav-link.active {
+            color: #5d4037;
+            background-color: transparent;
+            border-bottom: 3px solid #e7d4c0;
+        }
+        
+        .library-tabs .nav-link:hover {
+            color: #3e2723;
+        }
+        
+        /* Webtoon item styling */
+        .webtoon-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .webtoon-item {
+            display: flex;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .webtoon-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .webtoon-thumb {
+            width: 60px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 1rem;
+        }
+        
+        .webtoon-info {
+            flex: 1;
+        }
+        
+        .webtoon-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: #5d4037;
+        }
+        
+        .webtoon-type {
+            font-size: 0.8rem;
+            color: #8d6e63;
+            margin-bottom: 0.5rem;
+        }
+        
+        .webtoon-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .webtoon-actions .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+        
+        /* Section visibility control */
+        .tab-content > .tab-pane {
+            display: none;
+        }
+        
+        .tab-content > .active {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -180,29 +270,41 @@
         <!-- Library Sections -->
         <div class="mt-5">
             <h2 class="mb-4">My Library</h2>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-header bg-success text-white">
-                            <h4 class="mb-0">Reading</h4>
-                        </div>
-                        <ul id="readingList" class="list-group list-group-flush"></ul>
+            
+            <!-- Tabs -->
+            <ul class="nav nav-tabs library-tabs" id="libraryTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="reading-tab" data-bs-toggle="tab" data-bs-target="#reading-content" type="button" role="tab" aria-controls="reading" aria-selected="true">
+                        Reading
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed-content" type="button" role="tab" aria-controls="completed" aria-selected="false">
+                        Completed
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="dropped-tab" data-bs-toggle="tab" data-bs-target="#dropped-content" type="button" role="tab" aria-controls="dropped" aria-selected="false">
+                        Dropped
+                    </button>
+                </li>
+            </ul>
+            
+            <!-- Tab Content -->
+            <div class="tab-content" id="libraryTabContent">
+                <div class="tab-pane fade show active" id="reading-content" role="tabpanel" aria-labelledby="reading-tab">
+                    <div class="p-3">
+                        <ul id="readingList" class="webtoon-list"></ul>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-header bg-primary text-white">
-                            <h4 class="mb-0">Completed</h4>
-                        </div>
-                        <ul id="completedList" class="list-group list-group-flush"></ul>
+                <div class="tab-pane fade" id="completed-content" role="tabpanel" aria-labelledby="completed-tab">
+                    <div class="p-3">
+                        <ul id="completedList" class="webtoon-list"></ul>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-header bg-danger text-white">
-                            <h4 class="mb-0">Dropped</h4>
-                        </div>
-                        <ul id="droppedList" class="list-group list-group-flush"></ul>
+                <div class="tab-pane fade" id="dropped-content" role="tabpanel" aria-labelledby="dropped-tab">
+                    <div class="p-3">
+                        <ul id="droppedList" class="webtoon-list"></ul>
                     </div>
                 </div>
             </div>
@@ -211,5 +313,83 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/Javascript/webtoon.js"></script>
+    
+    <script>
+        // Sample data for demonstration
+        document.addEventListener('DOMContentLoaded', function() {
+            const sampleLibrary = {
+                reading: [
+                    { id: 1, title: "Tower of God", type: "Korean Manhwa", status: "reading", image: "https://swebtoon-phinf.pstatic.net/20180403_188/1522748091252vkIAH_JPEG/04_EC8DB8EB84A4EC9DBC_m.jpg?type=crop540_540" },
+                    { id: 2, title: "Solo Leveling", type: "Korean Manhwa", status: "reading", image: "https://swebtoon-phinf.pstatic.net/20201120_76/1605868256616Fl0cC_JPEG/04_EC8DB8EB84A4EC9DBC_m.jpg?type=crop540_540" },
+                    { id: 3, title: "Omniscient Reader's Viewpoint", type: "Korean Manhwa", status: "reading", image: "https://swebtoon-phinf.pstatic.net/20210625_36/1624605470858rr5A0_JPEG/3534_EC8DB8EB84A4EC9DBC_m.jpg?type=crop540_540" }
+                ],
+                completed: [
+                    { id: 4, title: "Sweet Home", type: "Korean Manhwa", status: "completed", image: "https://swebtoon-phinf.pstatic.net/20180518_38/1526628720325tdA2W_JPEG/04_EC8DB8EB84A4EC9DBC_m.jpg?type=crop540_540" },
+                    { id: 5, title: "The Gamer", type: "Korean Manhwa", status: "completed", image: "https://swebtoon-phinf.pstatic.net/20140128_75/1390898163673P3bR9_JPEG/11_EC8DB8EB84A4EC9DBC.jpg?type=crop540_540" }
+                ],
+                dropped: [
+                    { id: 6, title: "Noblesse", type: "Korean Manhwa", status: "dropped", image: "https://swebtoon-phinf.pstatic.net/20200114_104/1578963070279OHQfa_JPEG/04_EC8DB8EB84A4EC9DBC_m.jpg?type=crop540_540" }
+                ]
+            };
+            
+            // Populate lists
+            function renderLibrary() {
+                document.getElementById('readingList').innerHTML = sampleLibrary.reading.map(createWebtoonItem).join('');
+                document.getElementById('completedList').innerHTML = sampleLibrary.completed.map(createWebtoonItem).join('');
+                document.getElementById('droppedList').innerHTML = sampleLibrary.dropped.map(createWebtoonItem).join('');
+            }
+            
+            function createWebtoonItem(webtoon) {
+                return `
+                    <li class="webtoon-item" data-id="${webtoon.id}">
+                        <img src="${webtoon.image}" alt="${webtoon.title}" class="webtoon-thumb">
+                        <div class="webtoon-info">
+                            <h5 class="webtoon-title">${webtoon.title}</h5>
+                            <div class="webtoon-type">${webtoon.type}</div>
+                            <div class="webtoon-actions">
+                                <button class="btn btn-sm btn-outline-primary view-btn">View Details</button>
+                                <button class="btn btn-sm btn-outline-danger remove-btn">Remove</button>
+                            </div>
+                        </div>
+                    </li>
+                `;
+            }
+            
+            renderLibrary();
+            
+            // Handle tab activation
+            const tabs = document.querySelectorAll('.library-tabs .nav-link');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show corresponding content
+                    const target = this.getAttribute('data-bs-target');
+                    document.querySelectorAll('.tab-pane').forEach(pane => {
+                        pane.classList.remove('show', 'active');
+                    });
+                    document.querySelector(target).classList.add('show', 'active');
+                });
+            });
+            
+            // Remove item functionality
+            document.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const item = this.closest('.webtoon-item');
+                    const id = parseInt(item.getAttribute('data-id'));
+                    
+                    // Remove from data
+                    ['reading', 'completed', 'dropped'].forEach(status => {
+                        sampleLibrary[status] = sampleLibrary[status].filter(w => w.id !== id);
+                    });
+                    
+                    // Re-render lists
+                    renderLibrary();
+                });
+            });
+        });
+    </script>
 </body>
 </html> 
