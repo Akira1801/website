@@ -129,10 +129,20 @@ class WebtoonLibrary {
         return `${stars} (${score})`;
     }
 
-    addToLibrary(id, title, category = 'reading') {
-        if (document.querySelector(`[data-id='${id}']`)) {
+    addToLibrary(id, title, category = 'reading', imageUrl = '') {
+        // Check if item already exists in any list
+        const existingItem = document.querySelector(`[data-id='${id}']`);
+        if (existingItem) {
             this.showNotification('This title is already in your library!', 'warning');
             return;
+        }
+
+        // If no imageUrl provided, try to get it from search results
+        if (!imageUrl) {
+            const searchItem = document.querySelector(`.card[data-id='${id}'] img`);
+            if (searchItem) {
+                imageUrl = searchItem.src;
+            }
         }
 
         const libraryItem = document.createElement('li');
@@ -152,7 +162,7 @@ class WebtoonLibrary {
             </div>`;
 
         document.getElementById(`${category}List`).appendChild(libraryItem);
-        this.saveLibrary();
+        this.saveLibrary(id, title, imageUrl, category);
         this.showNotification('Added to your library!', 'success');
     }
 
@@ -191,7 +201,7 @@ class WebtoonLibrary {
         });
     }
 
-    saveLibrary() {
+    saveLibrary(newId, newTitle, newImageUrl, newCategory) {
         const library = {
             reading: [],
             completed: [],
@@ -201,9 +211,18 @@ class WebtoonLibrary {
         ['reading', 'completed', 'dropped'].forEach(category => {
             library[category] = Array.from(document.getElementById(`${category}List`).children).map(item => ({
                 id: item.dataset.id,
-                title: item.querySelector('span').textContent
+                title: item.querySelector('span').textContent,
+                imageUrl: item.dataset.imageUrl || ''
             }));
         });
+
+        // If we're adding a new item, make sure to include the image URL
+        if (newId && newTitle && newCategory) {
+            const itemIndex = library[newCategory].findIndex(item => item.id === newId);
+            if (itemIndex >= 0) {
+                library[newCategory][itemIndex].imageUrl = newImageUrl || '';
+            }
+        }
 
         localStorage.setItem('webtoonLibrary', JSON.stringify(library));
     }
@@ -216,7 +235,7 @@ class WebtoonLibrary {
             const list = document.getElementById(`${category}List`);
             list.innerHTML = '';
             library[category].forEach(webtoon => {
-                this.addToLibrary(webtoon.id, webtoon.title, category);
+                this.addToLibrary(webtoon.id, webtoon.title, category, webtoon.imageUrl);
             });
         });
     }
