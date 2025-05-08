@@ -107,6 +107,23 @@
         .card-header {
             cursor: pointer;
             transition: background-color 0.3s;
+            position: relative;
+            padding-right: 40px;
+        }
+        
+        .card-header:after {
+            content: '\f078';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+        }
+        
+        .card-header.active:after {
+            transform: translateY(-50%) rotate(180deg);
         }
         
         .card-header:hover {
@@ -116,14 +133,16 @@
         /* Webtoon item styling */
         .webtoon-item {
             display: flex;
-            padding: 0.5rem;
+            padding: 0.75rem;
             background-color: white;
             border-bottom: 1px solid rgba(0,0,0,0.05);
-            transition: background-color 0.2s;
+            transition: all 0.2s;
+            align-items: center;
         }
         
         .webtoon-item:hover {
             background-color: #f8f9fa;
+            transform: translateX(5px);
         }
         
         .webtoon-item:last-child {
@@ -131,11 +150,12 @@
         }
         
         .webtoon-thumb {
-            width: 40px;
-            height: 60px;
+            width: 45px;
+            height: 65px;
             object-fit: cover;
-            border-radius: 4px;
+            border-radius: 6px;
             margin-right: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .webtoon-info {
@@ -145,22 +165,37 @@
         
         .webtoon-title {
             font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 0.1rem;
+            font-size: 0.95rem;
+            margin-bottom: 0.2rem;
             color: #5d4037;
         }
         
         .webtoon-type {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: #8d6e63;
         }
         
         .list-group-flush {
             display: none;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
         }
         
         .list-group-flush.show {
             display: block;
+            max-height: 1000px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .webtoon-item {
+            animation: fadeIn 0.3s ease forwards;
+            animation-delay: calc(0.05s * var(--animation-order, 0));
+            opacity: 0;
         }
     </style>
 </head>
@@ -273,38 +308,68 @@
     <script src="/Javascript/webtoon.js"></script>
     
     <script>
-        // Sample data for demonstration
+        // Make card headers clickable to expand/collapse
         document.addEventListener('DOMContentLoaded', function() {
+            // Get all card headers
+            const cardHeaders = document.querySelectorAll('.card-header');
             
             // Make card headers clickable to expand/collapse
-            const cardHeaders = document.querySelectorAll('.card-header');
             cardHeaders.forEach(header => {
                 header.addEventListener('click', function() {
+                    // Toggle active class on header
+                    this.classList.toggle('active');
+                    
+                    // Find and toggle the list group
                     const listGroup = this.closest('.card').querySelector('.list-group-flush');
                     listGroup.classList.toggle('show');
+                    
+                    // Set animation order for items
+                    if (listGroup.classList.contains('show')) {
+                        const items = listGroup.querySelectorAll('.webtoon-item');
+                        items.forEach((item, index) => {
+                            item.style.setProperty('--animation-order', index);
+                        });
+                    }
                 });
             });
             
-            // Populate lists with sample data
-            function renderLibrary() {
-                document.getElementById('readingList').innerHTML = sampleLibrary.reading.map(createWebtoonItem).join('');
-                document.getElementById('completedList').innerHTML = sampleLibrary.completed.map(createWebtoonItem).join('');
-                document.getElementById('droppedList').innerHTML = sampleLibrary.dropped.map(createWebtoonItem).join('');
+            // Function to create webtoon items with thumbnails
+            function updateWebtoonLists() {
+                // This function would normally fetch data from your API or localStorage
+                // For now, we'll use placeholder images and data
+                
+                // Sample data structure
+                const defaultImage = "https://via.placeholder.com/90x135/e7d4c0/5d4037?text=Webtoon";
+                
+                // Create HTML for webtoon items
+                function createWebtoonItem(title, type, image = defaultImage, id) {
+                    return `
+                        <li class="webtoon-item list-group-item" data-id="${id || Math.random()}">
+                            <img src="${image}" alt="${title}" class="webtoon-thumb">
+                            <div class="webtoon-info">
+                                <div class="webtoon-title">${title}</div>
+                                <div class="webtoon-type">${type}</div>
+                            </div>
+                        </li>
+                    `;
+                }
+                
+                // Populate each list with some sample data
+                document.getElementById('readingList').innerHTML = 
+                    createWebtoonItem("Tower of God", "Korean Manhwa", "https://swebtoon-phinf.pstatic.net/20180403_188/1522748091252vkIAH_JPEG/04_EC8DB8EB84A4EC9DBC_m.jpg?type=crop540_540", 1) +
+                    createWebtoonItem("Solo Leveling", "Korean Manhwa", "https://swebtoon-phinf.pstatic.net/20201120_76/1605868256616Fl0cC_JPEG/04_EC8DB8EB84A4EC9DBC_m.jpg?type=crop540_540", 2) +
+                    createWebtoonItem("Omniscient Reader", "Korean Manhwa", "https://swebtoon-phinf.pstatic.net/20210625_36/1624605470858rr5A0_JPEG/3534_EC8DB8EB84A4EC9DBC_m.jpg?type=crop540_540", 3);
+                
+                document.getElementById('completedList').innerHTML = 
+                    createWebtoonItem("Sweet Home", "Korean Manhwa", "https://swebtoon-phinf.pstatic.net/20180518_38/1526628720325tdA2W_JPEG/04_EC8DB8EB84A4EC9DBC_m.jpg?type=crop540_540", 4) +
+                    createWebtoonItem("The Gamer", "Korean Manhwa", "https://swebtoon-phinf.pstatic.net/20140128_75/1390898163673P3bR9_JPEG/11_EC8DB8EB84A4EC9DBC.jpg?type=crop540_540", 5);
+                
+                document.getElementById('droppedList').innerHTML = 
+                    createWebtoonItem("Noblesse", "Korean Manhwa", "https://swebtoon-phinf.pstatic.net/20200114_104/1578963070279OHQfa_JPEG/04_EC8DB8EB84A4EC9DBC_m.jpg?type=crop540_540", 6);
             }
             
-            function createWebtoonItem(webtoon) {
-                return `
-                    <li class="webtoon-item list-group-item" data-id="${webtoon.id}">
-                        <img src="${webtoon.image}" alt="${webtoon.title}" class="webtoon-thumb">
-                        <div class="webtoon-info">
-                            <div class="webtoon-title">${webtoon.title}</div>
-                            <div class="webtoon-type">${webtoon.type}</div>
-                        </div>
-                    </li>
-                `;
-            }
-            
-            renderLibrary();
+            // Initialize the lists
+            updateWebtoonLists();
         });
     </script>
 </body>
