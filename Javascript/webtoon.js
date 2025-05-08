@@ -143,7 +143,7 @@ class WebtoonLibrary {
             <span>${title}</span>
             <div class="d-flex align-items-center">
                 <span class="status-badge status-${category} me-2">${category}</span>
-                <select class="form-select form-select-sm w-auto" onchange="library.moveToCategory(this, '${id}', '${title}')">
+                <select class="form-select form-select-sm w-auto" onchange="library.moveToCategory(this, '${id}', '${title}', '${category}')">
                     <option value="reading" ${category === 'reading' ? 'selected' : ''}>Reading</option>
                     <option value="completed" ${category === 'completed' ? 'selected' : ''}>Completed</option>
                     <option value="dropped" ${category === 'dropped' ? 'selected' : ''}>Dropped</option>
@@ -165,8 +165,12 @@ class WebtoonLibrary {
         }
     }
 
-    moveToCategory(selectElement, id, title) {
-        const category = selectElement.value;
+    moveToCategory(element, id, title, category) {
+        // If called from select element, get the value
+        if (element.tagName === 'SELECT') {
+            category = element.value;
+        }
+        
         this.removeFromLibrary(id);
         this.addToLibrary(id, title, category);
     }

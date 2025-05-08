@@ -345,7 +345,21 @@
                             <img src="${image}" alt="${title}" class="webtoon-thumb">
                             <div class="webtoon-info">
                                 <div class="webtoon-title">${title}</div>
-                                <div class="webtoon-type">${type}</div>
+                                <div class="d-flex justify-content-between align-items-center mt-1">
+                                    <span class="webtoon-type">${type}</span>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Move
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#" onclick="library.moveToCategory(this, '${id}', '${title.replace(/'/g, "\\'")}', 'reading')">Reading</a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="library.moveToCategory(this, '${id}', '${title.replace(/'/g, "\\'")}', 'completed')">Completed</a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="library.moveToCategory(this, '${id}', '${title.replace(/'/g, "\\'")}', 'dropped')">Dropped</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item text-danger" href="#" onclick="library.removeFromLibrary('${id}')">Remove</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </li>
                     `;
