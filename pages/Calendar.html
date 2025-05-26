@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -74,6 +75,110 @@
             border: none;
             background: none;
         }
+        .pie-chart-container {
+            max-width: 500px;
+            margin: 2rem auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+            padding: 1.5rem;
+        }
+        .chart-wrapper {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .chart-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        .calendar-schedule-wrapper {
+            width: 100%;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 0 1rem;
+        }
+        .calendar {
+            width: 380px;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            margin: 0;
+        }
+        .itinerary {
+            width: 380px;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            margin: 0;
+        }
+        .pie-chart-container {
+            width: 380px;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            margin: 0;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+            padding: 1.5rem;
+        }
+        .chart-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        .chart-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 100%;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+        @media (max-width: 1200px) {
+            .calendar-schedule-wrapper {
+                flex-wrap: wrap;
+            }
+            .calendar, .itinerary, .pie-chart-container {
+                width: calc(50% - 1rem);
+            }
+        }
+        @media (max-width: 768px) {
+            .calendar-schedule-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .calendar, .itinerary, .pie-chart-container {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -115,120 +220,92 @@
         </div>
       </nav>
 
-    <div class="calendar-schedule-wrapper d-flex justify-content-center align-items-start my-4" style="min-height: 70vh;">
-  <div class="calendar flex-shrink-0 me-4" id="calendarContainer"></div>
-  <div class="itinerary flex-grow-1" id="itineraryContainer" style="display:none;">
-    <div class="itinerary-header">
+    <div class="calendar-schedule-wrapper my-4">
+        <div class="calendar" id="calendarContainer"></div>
+        <div class="itinerary" id="itineraryContainer" style="display:none;">
+            <div class="itinerary-header">
                 <h4 id="itineraryDate"></h4>
                 <button class="btn btn-secondary btn-sm" onclick="closeItinerary()">Close</button>
             </div>
             <form class="d-flex flex-wrap align-items-end gap-3 mb-3" id="addScheduleForm" onsubmit="addSchedule(event)">
-  <div class="d-flex flex-column flex-grow-1" style="min-width:220px;max-width:320px;">
-    <label for="scheduleStartTime" class="form-label mb-1">Start Time</label>
-    <div class="input-group flex-nowrap time-group">
-      <input type="time" class="form-control form-control-lg" id="scheduleStartTime" required style="min-width:140px;max-width:180px;">
-    </div>
-  </div>
-  <div class="d-flex flex-column flex-grow-1" style="min-width:220px;max-width:320px;">
-    <label for="scheduleEndTime" class="form-label mb-1">End Time</label>
-    <div class="input-group flex-nowrap time-group">
-      <input type="time" class="form-control form-control-lg" id="scheduleEndTime" required style="min-width:140px;max-width:180px;">
-    </div>
-  </div>
-  <div class="d-flex flex-column flex-grow-1" style="min-width:220px;max-width:800px;">
-    <label for="scheduleText" class="form-label mb-1">Schedule</label>
-    <select class="form-select form-select-lg" id="scheduleText" required>
-      <option value="" disabled selected>Select schedule</option>
-      <option value="Commute">Commute</option>
-      <option value="Wake Up">Wake Up</option>
-      <option value="Chores">Chores</option>
-      <option value="Study">Study</option>
-      <option value="Review Center">Review Center</option>
-    </select>
-  </div>
-  <div class="d-flex flex-column flex-grow-1" style="min-width:120px;max-width:180px;">
-    <button type="submit" class="btn btn-success btn-lg mt-4 w-100">Add</button>
-  </div>
-</form>
-<style>
-    .calendar-schedule-wrapper {
-        width: 100%;
-        max-width: 1200px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .calendar {
-        max-width: 420px;
-        min-width: 320px;
-        box-sizing: border-box;
-        margin: 0;
-    }
-    .itinerary {
-        max-width: 600px;
-        min-width: 320px;
-        box-sizing: border-box;
-        margin: 0;
-    }
-    #addScheduleForm {
-        width: 100%;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-    #addScheduleForm .input-group.time-group {
-        flex-wrap: nowrap;
-        width: 100%;
-        min-width: 200px;
-        max-width: 320px;
-        gap: 0.3rem;
-    }
-    #addScheduleForm .form-select,
-    #addScheduleForm .form-control {
-        min-width: 60px;
-        max-width: 90px;
-        font-size: 1.15rem;
-    }
-    #addScheduleForm .form-select#scheduleText {
-        min-width: 100%;
-        max-width: none;
-        width: 100%;
-        min-height: 50px;
-        font-size: 1.25rem;
-        padding: 0.75rem 1rem;
-    }
-    #addScheduleForm .input-group-text {
-        min-width: 20px;
-        max-width: 30px;
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
-        font-size: 1.15rem;
-    }
-    #addScheduleForm label {
-        font-size: 1rem;
-        margin-bottom: 0.25rem;
-    }
-    #addScheduleForm .d-flex.flex-column {
-        margin-bottom: 0;
-    }
-    @media (max-width: 991px) {
-        .calendar-schedule-wrapper {
-            flex-direction: column !important;
-            align-items: stretch !important;
-        }
-        .calendar, .itinerary {
-            max-width: 100%;
-            min-width: 0;
-        }
-        #addScheduleForm {
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        #addScheduleForm .input-group.time-group {
-            min-width: 0;
-            max-width: 100%;
-        }
-    }
-</style>
-        <ul class="schedule-list" id="scheduleList"></ul>
+                <div class="d-flex flex-column flex-grow-1" style="min-width:220px;max-width:320px;">
+                    <label for="scheduleStartTime" class="form-label mb-1">Start Time</label>
+                    <div class="input-group flex-nowrap time-group">
+                        <input type="time" class="form-control form-control-lg" id="scheduleStartTime" required style="min-width:140px;max-width:180px;">
+                    </div>
+                </div>
+                <div class="d-flex flex-column flex-grow-1" style="min-width:220px;max-width:320px;">
+                    <label for="scheduleEndTime" class="form-label mb-1">End Time</label>
+                    <div class="input-group flex-nowrap time-group">
+                        <input type="time" class="form-control form-control-lg" id="scheduleEndTime" required style="min-width:140px;max-width:180px;">
+                    </div>
+                </div>
+                <div class="d-flex flex-column flex-grow-1" style="min-width:220px;max-width:800px;">
+                    <label for="scheduleText" class="form-label mb-1">Schedule</label>
+                    <select class="form-select form-select-lg" id="scheduleText" required>
+                        <option value="" disabled selected>Select schedule</option>
+                        <option value="Commute">Commute</option>
+                        <option value="Wake Up">Wake Up</option>
+                        <option value="Chores">Chores</option>
+                        <option value="Study">Study</option>
+                        <option value="Review Center">Review Center</option>
+                    </select>
+                </div>
+                <div class="d-flex flex-column flex-grow-1" style="min-width:120px;max-width:180px;">
+                    <button type="submit" class="btn btn-success btn-lg mt-4 w-100">Add</button>
+                </div>
+            </form>
+            <style>
+                #addScheduleForm {
+                    width: 100%;
+                    flex-wrap: wrap;
+                    gap: 1rem;
+                }
+                #addScheduleForm .input-group.time-group {
+                    flex-wrap: nowrap;
+                    width: 100%;
+                    min-width: 200px;
+                    max-width: 320px;
+                    gap: 0.3rem;
+                }
+                #addScheduleForm .form-select,
+                #addScheduleForm .form-control {
+                    min-width: 60px;
+                    max-width: 90px;
+                    font-size: 1.15rem;
+                }
+                #addScheduleForm .form-select#scheduleText {
+                    min-width: 100%;
+                    max-width: none;
+                    width: 100%;
+                    min-height: 50px;
+                    font-size: 1.25rem;
+                    padding: 0.75rem 1rem;
+                }
+                #addScheduleForm .input-group-text {
+                    min-width: 20px;
+                    max-width: 30px;
+                    padding-left: 0.5rem;
+                    padding-right: 0.5rem;
+                    font-size: 1.15rem;
+                }
+                #addScheduleForm label {
+                    font-size: 1rem;
+                    margin-bottom: 0.25rem;
+                }
+                #addScheduleForm .d-flex.flex-column {
+                    margin-bottom: 0;
+                }
+            </style>
+            <ul class="schedule-list" id="scheduleList"></ul>
+        </div>
+        <div class="pie-chart-container" id="pieChartContainer" style="display:none;">
+            <h4 class="text-center mb-3">Schedule Time Distribution</h4>
+            <div class="chart-wrapper">
+                <canvas id="schedulePieChart" style="max-width: 280px;"></canvas>
+                <div class="chart-legend" id="chartLegend"></div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -289,12 +366,15 @@
 
         function showItinerary(dateStr) {
             itineraryContainer.style.display = '';
+            pieChartContainer.style.display = '';
             itineraryDate.textContent = new Date(dateStr).toLocaleDateString();
             renderSchedule(dateStr);
+            updatePieChart(dateStr);
         }
 
         function closeItinerary() {
             itineraryContainer.style.display = 'none';
+            pieChartContainer.style.display = 'none';
             selectedDate = null;
             renderCalendar(calendarYear, calendarMonth);
         }
@@ -378,6 +458,91 @@
             schedules[dateStr].splice(idx, 1);
             localStorage.setItem('calendarSchedules', JSON.stringify(schedules));
             renderSchedule(dateStr);
+        }
+
+        let pieChart = null;
+
+        function updatePieChart(dateStr) {
+            const daySchedules = schedules[dateStr] || [];
+            const scheduleData = {};
+            const colors = {
+                'Commute': '#FF6384',
+                'Wake Up': '#36A2EB',
+                'Chores': '#FFCE56',
+                'Study': '#4BC0C0',
+                'Review Center': '#9966FF',
+                'Rest': '#C9CBCF'
+            };
+
+            // Calculate total minutes in a day
+            const totalMinutes = 24 * 60;
+            let scheduledMinutes = 0;
+
+            // Calculate time for each schedule
+            daySchedules.forEach(schedule => {
+                const startTime = convertToMinutes(schedule.startTime, schedule.startPeriod);
+                const endTime = convertToMinutes(schedule.endTime, schedule.endPeriod);
+                const duration = endTime - startTime;
+                
+                if (!scheduleData[schedule.text]) {
+                    scheduleData[schedule.text] = 0;
+                }
+                scheduleData[schedule.text] += duration;
+                scheduledMinutes += duration;
+            });
+
+            // Add rest time
+            const restTime = totalMinutes - scheduledMinutes;
+            if (restTime > 0) {
+                scheduleData['Rest'] = restTime;
+            }
+
+            // Prepare data for Chart.js
+            const labels = Object.keys(scheduleData);
+            const data = Object.values(scheduleData);
+            const backgroundColors = labels.map(label => colors[label] || '#C9CBCF');
+
+            // Update legend
+            const legendContainer = document.getElementById('chartLegend');
+            legendContainer.innerHTML = labels.map((label, index) => `
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: ${backgroundColors[index]}"></div>
+                    <span>${label} (${Math.round(scheduleData[label] / 60)}h ${scheduleData[label] % 60}m)</span>
+                </div>
+            `).join('');
+
+            // Create or update pie chart
+            if (pieChart) {
+                pieChart.destroy();
+            }
+
+            const ctx = document.getElementById('schedulePieChart').getContext('2d');
+            pieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function convertToMinutes(time, period) {
+            let [hours, minutes] = time.split(':').map(Number);
+            if (period === 'PM' && hours !== 12) hours += 12;
+            if (period === 'AM' && hours === 12) hours = 0;
+            return hours * 60 + minutes;
         }
     </script>
 </body>
